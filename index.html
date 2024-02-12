@@ -34,45 +34,49 @@
             <form class="col s12">
               <div class="row">
                 <div class="input-field col s6">                  
-                  <input placeholder="Title" id="title" type="text" class="validate">
+                  <input id="title" type="text">
                   <label for="title">Title</label>
                 </div>
                 <div class="input-field col s6">
-                  <input id="genre" type="text" class="validate">
+                  <input id="genre" type="text">
                   <label for="genre">Genre</label>
                 </div>
               </div>            
               <div class="row">
                 <div class="input-field col s12">
-                  <input id="developer" type="text" class="validate">
+                  <input id="developer" type="text">
                   <label for="developer">Developer</label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col s12">
-                  <input id="platforms" type="text" class="validate">
+                  <input id="platforms" type="text">
                   <label for="platforms">Platforms</label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col s6">
-                  <input id="rating" type="number" class="validate">
+                  <input id="rating" type="number">
                   <label for="rating">Rating</label>
                 </div>
               </div> 
               <div class="row">
                 <div class="input-field col s6">
-                  <input id="release_date" type="date" class="validate">
+                  <input id="release_date" type="date">
                   <label for="release_date">Release Date</label>
                 </div>
               </div> 
               <div class="row">
                 <div class="input-field col s12">
-                  <textarea id="textarea1" class="materialize-textarea"></textarea>
+                  <textarea id="reviews" class="materialize-textarea"></textarea>
                   <label for="reviews">Reviews</label>
                 </div>
               </div>                            
-              <a class="waves-effect waves-light btn-large orange">Agregar al Catálogo </a>
+              <button id="insert" class="btn waves-effect waves-light">Insertar</button>
+              <button id="read" class="btn waves-effect waves-light"> Leer </button>
+              <button id="update" class="btn waves-effect waves-light"> Actualizar </button>
+              <button id="delete" class="btn waves-effect waves-light"> Eliminar </button>
+
             </form>
           </div>
     <br><br>
@@ -100,10 +104,64 @@
   </footer>
 
 
-  <!--  Scripts-->
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, get, child, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+
+  // Web app's firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyC99XXYmK1D1QUzYMhXFp8K6-b39Tmsw8M",
+    authDomain: "db-project-b1376.firebaseapp.com",
+    databaseURL: "https://db-project-b1376-default-rtdb.firebaseio.com",
+    projectId: "db-project-b1376",
+    storageBucket: "db-project-b1376.appspot.com",
+    messagingSenderId: "833061070587",
+    appId: "1:833061070587:web:eea62e5cd01241b79e325e",
+    measurementId: "G-71SQMRT1CK"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase();
+
+  var titleV, genreV, developerV, platformsV, ratingV, releaseDateV, reviewsV
+
+function readForm () {
+    titleV = document.getElementById("title").value;
+    genreV = document.getElementById("genre").value;
+    developerV = document.getElementById ("developer").value
+    platformsV = document.getElementById ("platforms").value
+    ratingV = document.getElementById ("rating").value
+    releaseDateV = document.getElementById ("release_date").value
+    reviewsV = document.getElementById ("reviews").value    
+    console.log (titleV, genreV, developerV, platformsV, ratingV, releaseDateV, reviewsV)
+}
+
+document.getElementById("insert").onclick = function (e) {
+   e.preventDefault();
+   readForm()
+   
+   set (ref(db, "games/" + titleV), {
+        title: titleV,
+        genre: genreV,
+        developer: developerV,
+        platforms: platformsV,
+        rating: ratingV,
+        releaseDate: releaseDateV,
+        reviews: reviewsV
+   })
+    alert("Game added successfully")
+
+}
+</script>
+
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="js/materialize.js"></script>
   <script src="js/init.js"></script>
+  <script src="js/crud.js"></script>
+
 
   </body>
 </html>
