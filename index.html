@@ -31,7 +31,7 @@
     <h1 class="center"> Agrega Juegos al Catálogo </h1>
     <div class="section" id="form-section">     
         <div class="row">          
-            <form class="col s12">
+            <form class="col s12" id="gamesForm">
               <div class="row">
                 <div class="input-field col s6">                  
                   <input id="title" type="text" autofocus>
@@ -72,10 +72,7 @@
                   <label for="reviews">Reviews</label>
                 </div>
               </div>                            
-              <button id="insert" class="btn waves-effect waves-light">Insertar</button>
-              <button id="read" class="btn waves-effect waves-light"> Leer </button>
-              <button id="update" class="btn waves-effect waves-light"> Actualizar </button>
-              <button id="delete" class="btn waves-effect waves-light"> Eliminar </button>
+              <button id="insert" class="btn waves-effect waves-light">Insertar</button>             
 
             </form>
           </div>
@@ -113,7 +110,9 @@
 <script type="module">
   // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, setDoc, getDocs, addDoc, collection, updateDoc, deleteDoc, doc} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore,onSnapshot,setDoc, getDocs,getDoc, addDoc, collection, updateDoc, deleteDoc, doc} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+
 
 
   // Web app's firebase configuration
@@ -133,8 +132,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 var titleV, genreV, developerV, platformsV, ratingV, releaseDateV, reviewsV
-const gameContainer = document.getElementById("gameContainer") 
+const gameContainer = document.getElementById("gameContainer")
+const gamesForm = document.getElementById("gamesForm")
 const addBtn = document.getElementById("insert");
+
+let editStatus = false;
+
+let id = '';
 
 function readForm () {
     titleV = document.getElementById("title").value;
@@ -149,39 +153,77 @@ function readForm () {
 
 const gamesCollection = collection(db, 'games');
 const querySnapshot = await getDocs(gamesCollection);
-
-querySnapshot.forEach((doc) => {
-  console.log(doc.id, " => ", doc.data());
-  gameContainer.innerHTML += `
-  <div class="row">
-  <div class="col s12 m6">
-    <div class="card purple darken-4">
-      <div class="card-stacked">
-        <div class="card-content white-text">
-          <span class="card-title">${doc.data().title}</span>
-          <p><strong>Genre:</strong> ${doc.data().genre}</p>
-          <p><strong>Developer:</strong> ${doc.data().developer}</p>
-          <p><strong>Platforms:</strong> ${doc.data().platforms}</p>
-          <p><strong>Rating:</strong> ${doc.data().rating}</p>
-          <p><strong>Release Date:</strong> ${doc.data().releaseDate}</p>
-          <p><strong>Reviews:</strong> ${doc.data().reviews}</p>
-          <br>          
-          <a class="waves-effect waves-light btn  purple darken-1"  style="margin-right: 10px;">Editar</a>
-          <a class="waves-effect waves-light btn  purple darken-1">Actualizar</a>
+const onGetGames = (callback) => onSnapshot(gamesCollection, callback);
+const getGame = (id) => getDoc(doc(db, 'games', id));
+const updateGame = (id, updatedGame) => updateDoc(doc(db, 'games', id), updatedGame);
+const deleteGames = (id) => deleteDoc(doc(db, 'games', id));
+onGetGames((snaps) =>{
+  gameContainer.innerHTML = ""
+  snaps.forEach((doc) => {
+    console.log(doc.id, " => ", doc.data());
+    gameContainer.innerHTML += `
+    <div class="row">
+    <div class="col s12 m6">
+      <div class="card purple darken-4">
+        <div class="card-stacked">
+          <div class="card-content white-text">
+            <span class="card-title">${doc.data().title}</span>
+            <p><strong>Genre:</strong> ${doc.data().genre}</p>
+            <p><strong>Developer:</strong> ${doc.data().developer}</p>
+            <p><strong>Platforms:</strong> ${doc.data().platforms}</p>
+            <p><strong>Rating:</strong> ${doc.data().rating}</p>
+            <p><strong>Release Date:</strong> ${doc.data().releaseDate}</p>
+            <p><strong>Reviews:</strong> ${doc.data().reviews}</p>
+            <br>
+            <a href="#" class="btn waves-effect waves-light purple darken-1 btn-edit" style="margin-right: 10px;" data-id="${doc.id}">Editar</a>
+            <a href="#" class="btn waves-effect waves-light purple darken-1 mr-2 btn-delete" data-id="${doc.id}">Eliminar</a>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-  `
-});
+    `
+  const btnsDelete = document.querySelectorAll('.btn-delete')
+
+  btnsDelete.forEach(button => {
+    button.addEventListener('click', async (e) => {
+      await deleteGames(e.target.dataset.id)
+    })
+  })
+
+  const btnsEdit = document.querySelectorAll('.btn-edit')
+
+  btnsEdit.forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const doc = await getGame (e.target.dataset.id);
+      const games = doc.data();
+
+      editStatus = true
+      id = doc.id
+
+      gamesForm['title'].value = games.title
+      gamesForm['genre'].value = games.genre
+      gamesForm['developer'].value = games.developer
+      gamesForm['platforms'].value = games.platforms
+      gamesForm['rating'].value = games.rating
+      gamesForm['release_date'].value = games.releaseDate
+      gamesForm['reviews'].value = games.reviews
+      gamesForm['insert'].innerText = "Update" 
+      M.updateTextFields();
+    })
+  })
+})
+})
+
+
 
 
 addBtn.addEventListener("click", async (e) =>  {
   e.preventDefault();
   readForm();
 
-  await addDoc(collection(db, "games"), {
+  if (!editStatus) {
+    await addDoc(collection(db, "games"), {
     title: titleV,
     genre: genreV,
     developer: developerV,
@@ -189,63 +231,32 @@ addBtn.addEventListener("click", async (e) =>  {
     rating: ratingV,
     releaseDate: releaseDateV,
     reviews: reviewsV
-});
+    });
+    alert("Game added successfully"); 
+  } else {
+    await updateGame (id, {
+      title: titleV,
+      genre: genreV,
+      developer: developerV,
+      platforms: platformsV,
+      rating: ratingV,
+      releaseDate: releaseDateV,
+      reviews: reviewsV      
+    })
+
+    editStatus = false
+    addBtn.innerText = "Insert"
+    id = ""
+    alert("Game updated successfully");
+  }
+  
 
 
-  alert("Game added successfully");
 
   addBtn.reset();
   title.focus();
 
 })
-
-document.getElementById("read").onclick = function (e) {  
-  readForm();
-
-  const docRef = doc(db, "games", 'QlIgxnWTpOowE51I5e41');
-  const docSnap = getDoc(docRef);
-
-if (docSnap.exists()) {
-  console.log("Document data:", docSnap.data());
-} else {
-  // docSnap.data() will be undefined in this case
-  console.log("No such document!");
-}
-
-  alert("Game read successfully");
-}
-
-
-
-document.getElementById("update").onclick = function (e) {  
-  readForm();
-
-  // Get a reference to the specific document you want to update
-  const docRef = doc(db, "games", 'QlIgxnWTpOowE51I5e41');
-
-  // Use the updateDoc function to update the document
-  updateDoc(docRef, {
-    title: titleV,
-    genre: genreV,
-    developer: developerV,
-    platforms: platformsV,
-    rating: ratingV,
-    releaseDate: releaseDateV,
-    reviews: reviewsV
-  });
-
-  alert("Game updated successfully");
-}
-
-
-document.getElementById("delete").onclick = function (e) {
-  e.preventDefault();
-
-  deleteDoc(doc(db, "games", "p7Fezmcy8EVQt7S9a4HX"));
-  
-  alert("Game deleted successfully");
-
-};
 
 
 
