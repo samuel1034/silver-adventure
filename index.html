@@ -12,18 +12,17 @@
   <link rel="shortcut icon" href="https://img.icons8.com/ios-filled/100/ps-controller.png" type="image/x-icon">
 </head>
 <body>
-  <div class="section no-pad-bot  indigo darken-4" id="index-banner">
-    <div class="container indigo darken-4">
-      <br><br>
-      <h1 class="header center orange-text indigo darken-4">Catálogo de Juegos</h1>
-      <div class="row center">
-        <h5 class="header col s12 light orange-text">Explora nuestro catálogo de juegos</h5>
-      </div>
-      <div class="row center">
-        <a href="#form-section" id="download-button" class="btn-large waves-effect waves-light orange">Iniciar</a>
-      </div>
-      <br><br>
-
+  <nav>
+    <div class="nav-wrapper black">
+      <a href="#" class="brand-logo center">Catálogo de Juegos </a>
+      <img class= "gameLogo" src="img/logo.png" alt="">
+      
+    </div>
+  </nav>
+  
+  
+  <div class="hero" id="index-banner">
+    <div class="gameContainer">      
     </div>
   </div>
 
@@ -34,42 +33,42 @@
             <form class="col s12" id="gamesForm">
               <div class="row">
                 <div class="input-field col s6">                  
-                  <input id="title" type="text" autofocus>
-                  <label for="title">Title</label>
+                  <input id="title" type="text">
+                  <label for="title">Título</label>
                 </div>
                 <div class="input-field col s6">
                   <input id="genre" type="text">
-                  <label for="genre">Genre</label>
+                  <label for="genre">Generos</label>
                 </div>
               </div>            
               <div class="row">
                 <div class="input-field col s12">
                   <input id="developer" type="text">
-                  <label for="developer">Developer</label>
+                  <label for="developer">Desarrolador</label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col s12">
                   <input id="platforms" type="text">
-                  <label for="platforms">Platforms</label>
+                  <label for="platforms">Plataformas</label>
                 </div>
               </div>
               <div class="row">
                 <div class="input-field col s6">
                   <input id="rating" type="number">
-                  <label for="rating">Rating</label>
+                  <label for="rating">Puntaje</label>
                 </div>
               </div> 
               <div class="row">
                 <div class="input-field col s6">
                   <input id="release_date" type="date">
-                  <label for="release_date">Release Date</label>
+                  <label for="release_date">Fecha de lanzamiento</label>
                 </div>
               </div> 
               <div class="row">
                 <div class="input-field col s12">
                   <textarea id="reviews" class="materialize-textarea"></textarea>
-                  <label for="reviews">Reviews</label>
+                  <label for="reviews">Reseñas</label>
                 </div>
               </div>                            
               <button id="insert" class="btn waves-effect waves-light">Insertar</button>             
@@ -94,8 +93,8 @@
           <p class="grey-text text-lighten-4"> Un CRUD con un Catálogo de Juegos</p>
         </div>
         <div class="col l3 s12">
-          <h5 class="white-text">CRUD con Firebase</h5>
-          <p> Este sitio web esta realizado para hacer un CRUD con Firebase </p>
+          <h5 class="white-text">CRUD con Firestore</h5>
+          <p> Este sitio web esta realizado para hacer un CRUD con Firestore </p>
         </div>
       </div>
     </div>
@@ -168,12 +167,12 @@ onGetGames((snaps) =>{
         <div class="card-stacked">
           <div class="card-content white-text">
             <span class="card-title">${doc.data().title}</span>
-            <p><strong>Genre:</strong> ${doc.data().genre}</p>
-            <p><strong>Developer:</strong> ${doc.data().developer}</p>
-            <p><strong>Platforms:</strong> ${doc.data().platforms}</p>
-            <p><strong>Rating:</strong> ${doc.data().rating}</p>
-            <p><strong>Release Date:</strong> ${doc.data().releaseDate}</p>
-            <p><strong>Reviews:</strong> ${doc.data().reviews}</p>
+            <p><strong>Generos:</strong> ${doc.data().genre}</p>
+            <p><strong>Desarroladores:</strong> ${doc.data().developer}</p>
+            <p><strong>Plataformas:</strong> ${doc.data().platforms}</p>
+            <p><strong>Puntaje:</strong> ${doc.data().rating}</p>
+            <p><strong>Fecha de Lanzamiento:</strong> ${doc.data().releaseDate}</p>
+            <p><strong>Reseñas:</strong> ${doc.data().reviews}</p>
             <br>
             <a href="#" class="btn waves-effect waves-light purple darken-1 btn-edit" style="margin-right: 10px;" data-id="${doc.id}">Editar</a>
             <a href="#" class="btn waves-effect waves-light purple darken-1 mr-2 btn-delete" data-id="${doc.id}">Eliminar</a>
@@ -232,7 +231,7 @@ addBtn.addEventListener("click", async (e) =>  {
     releaseDate: releaseDateV,
     reviews: reviewsV
     });
-    alert("Game added successfully"); 
+    alert("Juego agregado exitosamente"); 
   } else {
     await updateGame (id, {
       title: titleV,
@@ -247,7 +246,7 @@ addBtn.addEventListener("click", async (e) =>  {
     editStatus = false
     addBtn.innerText = "Insert"
     id = ""
-    alert("Game updated successfully");
+    alert("Juego actualizado exitosamente");
   }
   
 
