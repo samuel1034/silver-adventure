@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title> Catálogo de Juegos </title>
+
+  <!-- CSS  -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="shortcut icon" href="https://img.icons8.com/ios-filled/100/ps-controller.png" type="image/x-icon">
+</head>
+<body>
+  <nav>
+    <div class="nav-wrapper black">
+      <a href="#" class="brand-logo center">Catálogo de Juegos </a>
+      <img class= "gameLogo" src="img/logo.png" alt="">
+      
+    </div>
+  </nav>
+  
+  
+  <div class="hero" id="index-banner">
+    <div class="gameContainer">      
+    </div>
+  </div>
+
+  <div class="container">
+    <h1 class="center"> Agrega Juegos al Catálogo </h1>
+    <div class="section" id="form-section">     
+        <div class="row">          
+            <form class="col s12" id="gamesForm">
+              <div class="row">
+                <div class="input-field col s6">                  
+                  <input id="title" type="text">
+                  <label for="title">Título</label>
+                </div>
+                <div class="input-field col s6">
+                  <input id="genre" type="text">
+                  <label for="genre">Generos</label>
+                </div>
+              </div>            
+              <div class="row">
+                <div class="input-field col s12">
+                  <input id="developer" type="text">
+                  <label for="developer">Desarrolador</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">
+                  <input id="platforms" type="text">
+                  <label for="platforms">Plataformas</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s6">
+                  <input id="rating" type="number">
+                  <label for="rating">Puntaje</label>
+                </div>
+              </div> 
+              <div class="row">
+                <div class="input-field col s6">
+                  <input id="release_date" type="date">
+                  <label for="release_date">Fecha de lanzamiento</label>
+                </div>
+              </div> 
+              <div class="row">
+                <div class="input-field col s12">
+                  <textarea id="reviews" class="materialize-textarea"></textarea>
+                  <label for="reviews">Reseñas</label>
+                </div>
+              </div>                            
+              <button id="insert" class="btn waves-effect waves-light">Insertar</button>             
+
+            </form>
+          </div>
+    <br><br>
+  </div>
+</div>
+
+<div class="container" id="gameContainer">
+  
+</div>
+
+
+
+  <footer class="page-footer blue darken-4 fixed-bottom">
+    <div class="container">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">Descripción</h5>
+          <p class="grey-text text-lighten-4"> Un CRUD con un Catálogo de Juegos</p>
+        </div>
+        <div class="col l3 s12">
+          <h5 class="white-text">CRUD con Firestore</h5>
+          <p> Este sitio web esta realizado para hacer un CRUD con Firestore </p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <div class="container">
+        <p class="white-text"> Hecho por Samuel Fuentes y Elias Sosa</p>
+      </div>
+    </div>
+  </footer>
+
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore,onSnapshot,setDoc, getDocs,getDoc, addDoc, collection, updateDoc, deleteDoc, doc} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+
+
+
+  // Web app's firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyC99XXYmK1D1QUzYMhXFp8K6-b39Tmsw8M",
+    authDomain: "db-project-b1376.firebaseapp.com",
+    databaseURL: "https://db-project-b1376-default-rtdb.firebaseio.com",
+    projectId: "db-project-b1376",
+    storageBucket: "db-project-b1376.appspot.com",
+    messagingSenderId: "833061070587",
+    appId: "1:833061070587:web:eea62e5cd01241b79e325e",
+    measurementId: "G-71SQMRT1CK"
+  };
+
+  // Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+var titleV, genreV, developerV, platformsV, ratingV, releaseDateV, reviewsV
+const gameContainer = document.getElementById("gameContainer")
+const gamesForm = document.getElementById("gamesForm")
+const addBtn = document.getElementById("insert");
+
+let editStatus = false;
+
+let id = '';
+
+function readForm () {
+    titleV = document.getElementById("title").value;
+    genreV = document.getElementById("genre").value;
+    developerV = document.getElementById ("developer").value
+    platformsV = document.getElementById ("platforms").value
+    ratingV = document.getElementById ("rating").value
+    releaseDateV = document.getElementById ("release_date").value
+    reviewsV = document.getElementById ("reviews").value       
+    console.log (titleV, genreV, developerV, platformsV, ratingV, releaseDateV, reviewsV)
+}
+
+const gamesCollection = collection(db, 'games');
+const querySnapshot = await getDocs(gamesCollection);
+const onGetGames = (callback) => onSnapshot(gamesCollection, callback);
+const getGame = (id) => getDoc(doc(db, 'games', id));
+const updateGame = (id, updatedGame) => updateDoc(doc(db, 'games', id), updatedGame);
+const deleteGames = (id) => deleteDoc(doc(db, 'games', id));
+onGetGames((snaps) =>{
+  gameContainer.innerHTML = ""
+  snaps.forEach((doc) => {
+    console.log(doc.id, " => ", doc.data());
+    gameContainer.innerHTML += `
+    <div class="row">
+    <div class="col s12 m6">
+      <div class="card purple darken-4">
+        <div class="card-stacked">
+          <div class="card-content white-text">
+            <span class="card-title">${doc.data().title}</span>
+            <p><strong>Generos:</strong> ${doc.data().genre}</p>
+            <p><strong>Desarroladores:</strong> ${doc.data().developer}</p>
+            <p><strong>Plataformas:</strong> ${doc.data().platforms}</p>
+            <p><strong>Puntaje:</strong> ${doc.data().rating}</p>
+            <p><strong>Fecha de Lanzamiento:</strong> ${doc.data().releaseDate}</p>
+            <p><strong>Reseñas:</strong> ${doc.data().reviews}</p>
+            <br>
+            <a href="#" class="btn waves-effect waves-light purple darken-1 btn-read" style="margin-right: 10px;" data-id="${doc.id}">Leer</a>
+            <a href="#" class="btn waves-effect waves-light purple darken-1 btn-edit" style="margin-right: 10px;" data-id="${doc.id}">Editar</a>
+            <a href="#" class="btn waves-effect waves-light purple darken-1 mr-2 btn-delete" data-id="${doc.id}">Eliminar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    `
+  const btnsDelete = document.querySelectorAll('.btn-delete')
+
+  btnsDelete.forEach(button => {
+    button.addEventListener('click', async (e) => {
+      await deleteGames(e.target.dataset.id)
+    })
+  })
+
+  const btnsRead = document.querySelectorAll('.btn-read')
+
+  btnsRead.forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const doc = await getGame (e.target.dataset.id);
+      const games = doc.data();
+     
+      
+      gamesForm['title'].value = games.title
+      gamesForm['genre'].value = games.genre
+      gamesForm['developer'].value = games.developer
+      gamesForm['platforms'].value = games.platforms
+      gamesForm['rating'].value = games.rating
+      gamesForm['release_date'].value = games.releaseDate
+      gamesForm['reviews'].value = games.reviews
+      
+      M.updateTextFields();
+      alert ("Se ha leido el juego correctamente")
+    })
+  })
+
+  const btnsEdit = document.querySelectorAll('.btn-edit')
+
+  btnsEdit.forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const doc = await getGame (e.target.dataset.id);
+      const games = doc.data();
+
+      editStatus = true
+      id = doc.id
+
+      gamesForm['title'].value = games.title
+      gamesForm['genre'].value = games.genre
+      gamesForm['developer'].value = games.developer
+      gamesForm['platforms'].value = games.platforms
+      gamesForm['rating'].value = games.rating
+      gamesForm['release_date'].value = games.releaseDate
+      gamesForm['reviews'].value = games.reviews
+      gamesForm['insert'].innerText = "Update" 
+      M.updateTextFields();
+    })
+  })
+})
+})
+
+
+
+
+addBtn.addEventListener("click", async (e) =>  {
+  e.preventDefault();
+  readForm();
+
+  if (!editStatus) {
+    await addDoc(collection(db, "games"), {
+    title: titleV,
+    genre: genreV,
+    developer: developerV,
+    platforms: platformsV,
+    rating: ratingV,
+    releaseDate: releaseDateV,
+    reviews: reviewsV
+    });
+    alert("Juego agregado exitosamente"); 
+  } else {
+    await updateGame (id, {
+      title: titleV,
+      genre: genreV,
+      developer: developerV,
+      platforms: platformsV,
+      rating: ratingV,
+      releaseDate: releaseDateV,
+      reviews: reviewsV      
+    })
+
+    editStatus = false
+    addBtn.innerText = "Insert"
+    id = ""
+    alert("Juego actualizado exitosamente");
+  }
+  
+
+
+
+  addBtn.reset();
+  title.focus();
+
+})
+
+
+
+
+</script>
+
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="/js/materialize.js"></script>
+  <script src="/js/init.js"></script>
+
+
+
+  </body>
+</html>
